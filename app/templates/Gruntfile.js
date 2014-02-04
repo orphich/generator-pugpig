@@ -12,11 +12,32 @@ var mountFolder = function (connect, dir) {
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 
+var gateway = require('gateway');
+var phpEnabled = true;             // PHP on/off variable - set to false if PHP not needed
+
 module.exports = function (grunt) {
   // show elapsed time at the end
   require('time-grunt')(grunt);
   // load all grunt tasks
   require('load-grunt-tasks')(grunt);
+
+  var phpOption = false;
+
+  if (phpEnabled) {
+    grunt.util.spawn({
+      cmd: 'command',
+      args: ['-v', 'php-cgi']
+    }, function(err, result) {
+      var phpPathCheck = new RegExp('(.*)/php-cgi');
+      if (phpPathCheck.test(result + '')) {
+        grunt.log.write('php-cgi found! server will run with PHP support \nphp-cgi path: ' + result);
+        phpOption = true;
+      } else {
+        grunt.log.error('php-cgi not found - grunt server will run without PHP support \nphp-cgi check output: ' + result);
+        phpOption = false;
+      }
+    });
+  }
 
   // configurable paths
   var cms = <% if ( templateType === 'Drupal' ) { %>'drupal'<% } else if ( templateType === 'Wordpress' ) { %>'wordpress'<% } else { %>'YOUR_CMS'<% } %>,
@@ -26,7 +47,8 @@ module.exports = function (grunt) {
       dist: {
         'static': distRoot + '/pugpig-<%= publication %>-static',
         'theme': distRoot + '/pugpig-<%= publication %>-theme'
-      }
+      },
+      buildtime: '2014-01-01T00:12:00+00:00'
     };
 
   grunt.initConfig({
@@ -56,11 +78,24 @@ module.exports = function (grunt) {
       livereload: {
         options: {
           middleware: function (connect) {
-            return [
-              lrSnippet,
-              mountFolder(connect, '.tmp'),
-              mountFolder(connect, yeomanConfig.app)
-            ];
+            if (phpOption) {
+              grunt.log.write('trying to run with php...');
+              return [
+                lrSnippet,
+                gateway(__dirname + '/app', {
+                  '.php': 'php-cgi'
+                }),
+                mountFolder(connect, '.tmp'),
+                mountFolder(connect, yeomanConfig.app)
+              ];
+            } else {
+              grunt.log.write('phpOption: ' + phpOption);
+              return [
+                lrSnippet,
+                mountFolder(connect, '.tmp'),
+                mountFolder(connect, yeomanConfig.app)
+              ];
+            }
           }
         }
       },
@@ -269,7 +304,23 @@ module.exports = function (grunt) {
           from: /Version: [0-9]*\.[0-9]*\.[0-9]*/g,
           to: "Version: <%%= grunt.config('meta-version') %>"
         }]
-      }
+      },
+      'static_date': {
+        src: [ '<%%= yeoman.app %>/opds-vars.php' ],
+        overwrite: true,
+        replacements: [{
+          from: /define\s*\(\s*'BUILD_DATE'\s*,\s*'[^']*'\s*\)\s*;/g,
+          to: 'define(\'BUILD_DATE\', \'<%%= yeoman.buildtime %>\');'
+        }]
+      }//,
+      // 'static_version_php': {
+      //     src: ['<%%= yeoman.dist.static %>/opds-vars.php', ],
+      //     overwrite: true,
+      //     replacements: [{
+      //     from: /\$version\s*=\s*".*?"\s*;/g,
+      //     to: "$version = \"<%%= grunt.config('meta-version') %>\";"
+      //   }]
+      // },
     }
   });
 

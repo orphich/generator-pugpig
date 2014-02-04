@@ -37,6 +37,13 @@ TemplateGenerator.prototype.create = function create() {
 
 };
 
+TemplateGenerator.prototype.createManifest = function create() {
+
+  this.template('template.manifest', this.fsTemplateName + '.manifest', {
+  });
+
+};
+
 TemplateGenerator.prototype.createSass = function create() {
 
   this.template('styles.sass', '../styles/' + this.fsTemplateName + '.sass', {
@@ -50,5 +57,8 @@ TemplateGenerator.prototype.updateTOC = function updateTOC() {
 
   this.appendToFile('index.html', 'ul', '  <li><a href="' + this.fsTemplateName + '.html">' + this.name + '</a></li>\n  ');
   console.log('Table of Contents updated');
+
+  fs.appendFile('atom-vars.php', '$pages["' + this.name + '"] = [\n  "short-name" => "' + this.fsTemplateName + '",\n  "manifest" => "' + this.fsTemplateName + '.manifest",\n  "description" => "' + this.description + '",\n];\n\n');
+  console.log('Atom feed updated');
 
 };
