@@ -5,6 +5,7 @@ var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
 var mountFolder = function (connect, dir) {
   return connect.static(require('path').resolve(dir));
 };
+var pages = require('./page-vars.js');
 
 // # Globbing
 // for performance reasons we're only matching one level down:
@@ -38,6 +39,15 @@ module.exports = function (grunt) {
       }
     });
   }
+
+  // Build options for manifest building
+  var manifestOpts;
+  manifestBuild = function(element, index, array) {
+    var name = element.fsName;
+    manifestOpts[distRoot + '/pugpig-<%= publication %>-static/static/' + name + '.manifest'] = [distRoot + '/pugpig-<%= publication %>-static/static/'  + name + '.html'];
+  };
+  var pagesObj = new pages();
+  pagesObj.pageArray.forEach(manifestBuild);
 
   // configurable paths
   var cms = <% if ( templateType === 'Drupal' ) { %>'drupal'<% } else if ( templateType === 'Wordpress' ) { %>'wordpress'<% } else { %>'YOUR_CMS'<% } %>,
@@ -82,7 +92,10 @@ module.exports = function (grunt) {
               grunt.log.write('trying to run with php...');
               return [
                 lrSnippet,
-                gateway(__dirname + '/app', {
+                gateway(__dirname + '<%%= yeoman.app.static %>', {
+                  '.php': 'php-cgi'
+                }),
+                gateway(__dirname + '<%%= yeoman.dist.static %>', {
                   '.php': 'php-cgi'
                 }),
                 mountFolder(connect, '.tmp'),
@@ -321,6 +334,26 @@ module.exports = function (grunt) {
       //     to: "$version = \"<%%= grunt.config('meta-version') %>\";"
       //   }]
       // },
+    },
+    manifestGenerator: {
+      test: {
+        options:{
+          includeHTML:true,
+          includeHtmlImage:true,
+          includeCSS:true,
+          includeCssImage:true,
+          includeJS:true,
+          excludeFiles:['/\.html$/'],
+          //additional files
+          extraFiles:['']
+        },
+        files: manifestOpts
+        // Syntax example
+        // {
+        //   'test.manifest': ['test/*.html'],
+        //   'index.manifest':['test/index.html']
+        // }
+      }
     }
   });
 
