@@ -58,7 +58,10 @@ TemplateGenerator.prototype.updateTOC = function updateTOC() {
   this.appendToFile('index.html', 'ul', '  <li><a href="' + this.fsTemplateName + '.html">' + this.name + '</a></li>\n  ');
   console.log('Table of Contents updated');
 
-  fs.appendFile('atom-vars.php', '$pages["' + this.name + '"] = [\n  "short-name" => "' + this.fsTemplateName + '",\n  "manifest" => "' + this.fsTemplateName + '.manifest",\n  "description" => "' + this.description + '",\n];\n\n');
-  console.log('Atom feed updated');
+  // fs.appendFile('page-vars.php', '$pages["' + this.name + '"] = [\n  "short-name" => "' + this.fsTemplateName + '",\n  "manifest" => "' + this.fsTemplateName + '.manifest",\n  "description" => "' + this.description + '",\n];\n\n');
+  // console.log('Atom feed updated');
+
+  this.appendToFile('page-vars.js', 'ul', this.name +  '\n  this.pageArray.push({\n    fsName: \'' + this.fsTemplateName + '\',\n    name: \'' + this.name + '\',\n    description: \'' + this.description + '\'\n  });\n\n    // ');
+  console.log('Page Object updated');
 
 };

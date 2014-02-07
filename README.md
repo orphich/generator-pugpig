@@ -27,6 +27,12 @@ To make use of all of the tools that the Pugpig Generator provides, here is the 
 * nokogiri - gem install nokogiri
 * nestful - gem install nestful
 
+#### Dependencies for PHP
+
+* PHP 5.4 with php-cgi  - brew tap josegonzalez/homebrew-php
+                        - brew tap homebrew/dupes
+                        - brew install --with-cgi php54
+
 ### What is Yeoman?
 
 Trick question. It's not a thing. It's this guy:
