@@ -219,11 +219,18 @@ PugpigGenerator.prototype.appStructure = function appStructure() {
 
   this.template('index.html', appDir + 'static/index.html', projectData);
 
-  this.template('static/atom.php', appDir + 'static/atom.php', projectData);
-  this.template('static/atom-vars.php', appDir + 'static/atom-vars.php', projectData);
+  // this.template('static/atom.php', appDir + 'static/atom.php', projectData);
+  // this.template('static/atom-vars.php', appDir + 'static/atom-vars.php', projectData);
 
-  this.template('static/editions.php', appDir + 'static/editions.php', projectData);
-  this.template('static/opds-vars.php', appDir + 'static/opds-vars.php', projectData);
+  // this.template('static/editions.php', appDir + 'static/editions.php', projectData);
+  // this.template('static/opds-vars.php', appDir + 'static/opds-vars.php', projectData);
+
+  this.template('static/editions.xml', appDir + 'static/editions.xml', {
+    name: promptData.publicationName,
+    id: promptData.publicationName.toLowerCase(),
+    date: Date.now(),
+    author: 'Pugpig'
+  });
 
   this.template('Gruntfile.js', themeFolder + 'Gruntfile.js', {
     publication: promptData.publicationName.toLowerCase(),
