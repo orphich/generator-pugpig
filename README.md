@@ -29,9 +29,10 @@ To make use of all of the tools that the Pugpig Generator provides, here is the 
 
 #### Dependencies for PHP
 
-* PHP 5.4 with php-cgi  - brew tap josegonzalez/homebrew-php
-                        - brew tap homebrew/dupes
-                        - brew install --with-cgi php54
+* PHP 5.4 with php-cgi  
+  * ```brew tap josegonzalez/homebrew-php```
+  * ```brew tap homebrew/dupes```
+  * ```brew install --with-cgi php54```
 
 ### What is Yeoman?
 
