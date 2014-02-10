@@ -23,7 +23,9 @@
   "dependencies": {
     "yeoman-generator": "~0.14.0-rc.1",
     "lodash": "~2.0.0",
-    "chalk": "~0.2.1"
+    "chalk": "~0.2.1",
+    "hogan.js": "~2.0.0",
+    "moment": "~2.5.1"
   },
   "devDependencies": {
     "mocha": "~1.12.0"
