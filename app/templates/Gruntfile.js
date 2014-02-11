@@ -5,7 +5,11 @@ var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
 var mountFolder = function (connect, dir) {
   return connect.static(require('path').resolve(dir));
 };
-var pages = require('./page-vars.js');
+var pages = require('./<%%= yeoman.app %>/static/page-vars.js');
+var atom = require('./atom');
+var opds = require ('./opds');
+var gateway = require('gateway');
+
 
 // # Globbing
 // for performance reasons we're only matching one level down:
@@ -13,7 +17,6 @@ var pages = require('./page-vars.js');
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 
-var gateway = require('gateway');
 var phpEnabled = true;             // PHP on/off variable - set to false if PHP not needed
 
 module.exports = function (grunt) {
@@ -22,7 +25,7 @@ module.exports = function (grunt) {
   // load all grunt tasks
   require('load-grunt-tasks')(grunt);
 
-  var phpOption = false;
+  var phpFound;
 
   if (phpEnabled) {
     grunt.util.spawn({
@@ -32,10 +35,10 @@ module.exports = function (grunt) {
       var phpPathCheck = new RegExp('(.*)/php-cgi');
       if (phpPathCheck.test(result + '')) {
         grunt.log.write('php-cgi found! server will run with PHP support \nphp-cgi path: ' + result);
-        phpOption = true;
+        phpFound = true;
       } else {
         grunt.log.error('php-cgi not found - grunt server will run without PHP support \nphp-cgi check output: ' + result);
-        phpOption = false;
+        phpFound = false;
       }
     });
   }
@@ -48,6 +51,9 @@ module.exports = function (grunt) {
   };
   var pagesObj = new pages();
   pagesObj.pageArray.forEach(manifestBuild);
+
+  var atomObj = new atom();
+  var opdsObj = new opds();
 
   // configurable paths
   var cms = <% if ( templateType === 'Drupal' ) { %>'drupal'<% } else if ( templateType === 'Wordpress' ) { %>'wordpress'<% } else { %>'YOUR_CMS'<% } %>,
@@ -78,7 +84,25 @@ module.exports = function (grunt) {
           '{.tmp,<%%= yeoman.app %>}/scripts/{,*/}*.js',
           '<%%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
-      }
+      },
+      manifest: {
+        files: [
+          '<%%= yeoman.app %>/static/*.html',
+          '.tmp/styles/{,*/}*.css',
+          '{.tmp,<%%= yeoman.app %>}/scripts/{,*/}*.js',
+          '<%%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+        ],
+        tasks: ['manifestGenerator']
+      },
+      build: {
+        files: [
+          '<%%= yeoman.app %>/static/*.html',
+          '.tmp/styles/{,*/}*.css',
+          '{.tmp,<%%= yeoman.app %>}/scripts/{,*/}*.js',
+          '<%%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+        ],
+        tasks: ['build']
+      },
     },
     connect: {
       options: {
@@ -88,7 +112,7 @@ module.exports = function (grunt) {
       livereload: {
         options: {
           middleware: function (connect) {
-            if (phpOption) {
+            if (phpFound) {
               grunt.log.write('trying to run with php...');
               return [
                 lrSnippet,
@@ -102,7 +126,7 @@ module.exports = function (grunt) {
                 mountFolder(connect, yeomanConfig.app)
               ];
             } else {
-              grunt.log.write('phpOption: ' + phpOption);
+              grunt.log.write('phpFound: ' + phpFound);
               return [
                 lrSnippet,
                 mountFolder(connect, '.tmp'),
@@ -344,7 +368,6 @@ module.exports = function (grunt) {
           includeCssImage:true,
           includeJS:true,
           excludeFiles:['/\.html$/'],
-          //additional files
           extraFiles:['']
         },
         files: manifestOpts
@@ -359,7 +382,14 @@ module.exports = function (grunt) {
 
   grunt.registerTask('server', function (target) {
     if (target === 'dist') {
-      return grunt.task.run(['build', 'open', 'connect:static:keepalive']);
+      return grunt.task.run(['build',
+        'open',
+        'watch:sass',
+        'watch:manifest',
+        'watch:build',
+        'manifest:dist',
+        'connect:static:keepalive',
+      ]);
     }
 
     grunt.task.run([
@@ -367,14 +397,27 @@ module.exports = function (grunt) {
       'concurrent:server',
       'connect:livereload',
       'open',
-      'watch'
+      'watch:sass',
+      'watch:livereload',
+      'watch:manifest',
+      'manifestGenerator:dist',
     ]);
+
+    grunt.file.write('./app/editions.xml', opdsObj.xmlStr);
+    grunt.file.write('./app/static/atom.xml', atomObj.xmlStr);
+
   });
 
-  grunt.registerTask('build', [
-    <% if ( templateType === 'Static' ) { %>//<% }%>'build:theme',
-    'build:static'
-  ]);
+  grunt.registerTask('build', function() {
+    grunt.task.run([
+      <% if ( templateType === 'Static' ) { %>//<% }%>'build:theme',
+      'build:static'
+    ]);
+
+    grunt.file.write('./app/editions.xml', opdsObj.xmlStr);
+    grunt.file.write('./app/static/atom.xml', atomObj.xmlStr);
+
+  });
 
   grunt.registerTask('build:theme', [
     'clean:theme',
@@ -391,6 +434,7 @@ module.exports = function (grunt) {
     'concurrent:static',
     'copy:static',
     'cssmin:static'
+    'manifest:dist',
   ]);
 
   // TODO: npm module that performs this task
