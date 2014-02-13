@@ -1,0 +1,14 @@
+{
+  "updatedDate": "2014-01-31T00:12:00+00:00",
+  "editionArray": [
+    {
+      "date": "2014-01-31T00:12:00+00:00",
+      "title": "Edition 1234",
+      "id": "1234",
+      "description": "Description for edition 1234",
+      "cover": "images/cover.jpg",
+      "atom": "static/atom.xml",
+      "atomAlt": "static/atom.xml"
+    }
+  ]
+}
