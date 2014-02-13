@@ -225,12 +225,15 @@ PugpigGenerator.prototype.appStructure = function appStructure() {
   // this.template('static/editions.php', appDir + 'static/editions.php', projectData);
   // this.template('static/opds-vars.php', appDir + 'static/opds-vars.php', projectData);
 
-  this.template('static/editions.xml', appDir + 'static/editions.xml', {
-    name: promptData.publicationName,
-    id: promptData.publicationName.toLowerCase(),
-    date: Date.now(),
-    author: 'Pugpig'
-  });
+  // this.template('static/editions.xml', appDir + 'static/editions.xml', {
+  //   name: promptData.publicationName,
+  //   id: promptData.publicationName.toLowerCase(),
+  //   date: Date.now(),
+  //   author: 'Pugpig'
+  // });
+
+  this.template('atom.js', themeFolder + 'atom.js', projectData);
+  this.template('opds.js', themeFolder + 'opds.js', projectData);
 
   this.template('Gruntfile.js', themeFolder + 'Gruntfile.js', {
     publication: promptData.publicationName.toLowerCase(),
