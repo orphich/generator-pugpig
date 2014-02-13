@@ -5,7 +5,7 @@ var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
 var mountFolder = function (connect, dir) {
   return connect.static(require('path').resolve(dir));
 };
-var pages = require('./<%%= yeoman.app %>/static/page-vars.js');
+var pages = require('./app/static/page-vars.json');
 var atom = require('./atom');
 var opds = require ('./opds');
 var gateway = require('gateway');
@@ -43,15 +43,6 @@ module.exports = function (grunt) {
     });
   }
 
-  // Build options for manifest building
-  var manifestOpts;
-  manifestBuild = function(element, index, array) {
-    var name = element.fsName;
-    manifestOpts[distRoot + '/pugpig-<%= publication %>-static/static/' + name + '.manifest'] = [distRoot + '/pugpig-<%= publication %>-static/static/'  + name + '.html'];
-  };
-  var pagesObj = new pages();
-  pagesObj.pageArray.forEach(manifestBuild);
-
   var atomObj = new atom();
   var opdsObj = new opds();
 
@@ -66,6 +57,18 @@ module.exports = function (grunt) {
       },
       buildtime: '2014-01-01T00:12:00+00:00'
     };
+
+  // Build options for manifest building
+  var manifestOpts = {};
+
+  var manifestBuild = function(element, index, array) {
+    var name = element.fsName;
+
+    manifestOpts[distRoot + '/pugpig-<%= publication %>-static/static/' + name + '.manifest'] = [distRoot + '/pugpig-<%= publication %>-static/static/' + name + '.html'];
+
+  };
+
+  pages.forEach(manifestBuild);
 
   grunt.initConfig({
     yeoman: yeomanConfig,
@@ -85,15 +88,6 @@ module.exports = function (grunt) {
           '<%%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
       },
-      manifest: {
-        files: [
-          '<%%= yeoman.app %>/static/*.html',
-          '.tmp/styles/{,*/}*.css',
-          '{.tmp,<%%= yeoman.app %>}/scripts/{,*/}*.js',
-          '<%%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-        ],
-        tasks: ['manifestGenerator']
-      },
       build: {
         files: [
           '<%%= yeoman.app %>/static/*.html',
@@ -102,7 +96,7 @@ module.exports = function (grunt) {
           '<%%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ],
         tasks: ['build']
-      },
+      }
     },
     connect: {
       options: {
@@ -360,7 +354,7 @@ module.exports = function (grunt) {
       // },
     },
     manifestGenerator: {
-      test: {
+      static: {
         options:{
           includeHTML:true,
           includeHtmlImage:true,
@@ -382,13 +376,11 @@ module.exports = function (grunt) {
 
   grunt.registerTask('server', function (target) {
     if (target === 'dist') {
-      return grunt.task.run(['build',
+      return grunt.task.run([
+        'build',
         'open',
-        'watch:sass',
-        'watch:manifest',
-        'watch:build',
-        'manifest:dist',
         'connect:static:keepalive',
+        'watch',
       ]);
     }
 
@@ -399,8 +391,6 @@ module.exports = function (grunt) {
       'open',
       'watch:sass',
       'watch:livereload',
-      'watch:manifest',
-      'manifestGenerator:dist',
     ]);
 
     grunt.file.write('./app/editions.xml', opdsObj.xmlStr);
@@ -433,8 +423,8 @@ module.exports = function (grunt) {
     'clean:static',
     'concurrent:static',
     'copy:static',
-    'cssmin:static'
-    'manifest:dist',
+    'cssmin:static',
+    'manifestGenerator:static',
   ]);
 
   // TODO: npm module that performs this task
