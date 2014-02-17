@@ -15,7 +15,7 @@ var feed = function(){
   var constructOPDSEntry = function(element, index, array) {
 
     var data = {
-      name: element.name,
+      name: element.title,
       fsName: element.id,
       desc: element.description,
       date: element.date,
