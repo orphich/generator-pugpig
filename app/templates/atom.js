@@ -30,6 +30,8 @@ var feed = function(){
 
     entry = template.render(data);
 
+    xmlStringTemp = xmlStringTemp + entry;
+
   };
 
   pages.forEach(constructAtomEntry);
