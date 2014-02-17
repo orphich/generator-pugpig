@@ -28,6 +28,8 @@ var feed = function(){
 
     var output = template.render(data);
 
+    xmlStringTemp = xmlStringTemp + output;
+
   };
 
   editions.editionArray.forEach(constructOPDSEntry);
