@@ -43,12 +43,12 @@ TemplateGenerator.prototype.create = function create() {
 
 };
 
-TemplateGenerator.prototype.createManifest = function create() {
+// TemplateGenerator.prototype.createManifest = function create() {
 
-  this.template('template.manifest', this.fsTemplateName + '.manifest', {
-  });
+//   this.template('template.manifest', this.fsTemplateName + '.manifest', {
+//   });
 
-};
+// };
 
 TemplateGenerator.prototype.createSass = function create() {
 
