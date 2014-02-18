@@ -87,15 +87,6 @@ module.exports = function (grunt) {
           '{.tmp,<%%= yeoman.app %>}/scripts/{,*/}*.js',
           '<%%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
-      },
-      build: {
-        files: [
-          '<%%= yeoman.app %>/static/*.html',
-          '.tmp/styles/{,*/}*.css',
-          '{.tmp,<%%= yeoman.app %>}/scripts/{,*/}*.js',
-          '<%%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-        ],
-        tasks: ['build']
       }
     },
     connect: {
@@ -379,8 +370,7 @@ module.exports = function (grunt) {
       return grunt.task.run([
         'build',
         'open',
-        'connect:static:keepalive',
-        'watch',
+        'connect:static:keepalive'
       ]);
     }
 
@@ -389,8 +379,7 @@ module.exports = function (grunt) {
       'concurrent:server',
       'connect:livereload',
       'open',
-      'watch:sass',
-      'watch:livereload',
+      'watch'
     ]);
 
     grunt.file.write('./app/editions.xml', opdsObj.xmlStr);
