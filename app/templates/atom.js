@@ -23,6 +23,7 @@ var feed = function(){
       fsName: element.fsName,
       desc: element.description,
       section: 'News',
+      // section: element.section,    // enable this is section is in the JSON object
       date: dateString
     };
 

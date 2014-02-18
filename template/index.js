@@ -22,13 +22,20 @@ TemplateGenerator.prototype.askFor = function askFor() {
   var cb = this.async();
 
   var prompts = [{
-    type: 'input',
-    name: 'description',
-    message: 'Please provide a description for your template'
-  }];
+      type: 'input',
+      name: 'description',
+      message: 'Please provide a description for your template'
+    },
+    // {                        // Uncomment if you want to set section on template generation
+    //   type: 'input',
+    //   name: 'section',
+    //   message: 'Please enter the section the template belongs to'
+    // }
+  ];
 
   this.prompt(prompts, function (props) {
     this.description = props.description;
+    // this.section = props.section;      // Uncomment if you want to set section on template generation
     this.fsTemplateName = this.name.toLowerCase().replace(/\s/g, '-');
     cb();
   }.bind(this));
@@ -67,7 +74,8 @@ TemplateGenerator.prototype.updatePages = function updatePages() {
   templateObj = {
     fsName: this.fsTemplateName,
     name: this.name,
-    description: this.description
+    description: this.description,
+    // section: this.section        // Uncomment if you want to set section on template generation
   };
 
   pages.push(templateObj);
